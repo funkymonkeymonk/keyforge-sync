@@ -1,36 +1,10 @@
 require("dotenv").config();
 const request = require("request-promise-native");
+const MasterVault = require("./master-vault");
 
-const MasterVaultToken = process.env.MV_TOKEN;
-const MasterVaultUserId = process.env.MV_USER;
 const DoKBearerToken = process.env.DOK_TOKEN;
 const CrucibleToken = process.env.CRUCIBLE_TOKEN;
 const CrucibleUserId = process.env.CRUCIBLE_USER;
-
-const getMyDecksFromMV = (page = 1, prev = []) => {
-  return request({
-    method: "GET",
-    url: `https://www.keyforgegame.com/api/users/${MasterVaultUserId}/decks/`,
-    qs: {
-      page: page,
-      page_size: "30",
-      ordering: "-date"
-    },
-    headers: { authorization: MasterVaultToken },
-    json: true
-  }).then(res => {
-    const decks = prev.concat(
-      res.data.map(deck => ({
-        name: deck.name,
-        id: deck.id
-      }))
-    );
-
-    // Return all results if complete
-    if (decks.length >= res.count) return decks;
-    else return getMyDecksFromMV(page + 1, decks);
-  });
-};
 
 const getMyDecksFromDoK = (page = 0, prev = []) => {
   return request({
@@ -122,12 +96,12 @@ const delta = (source, destination) => {
   return source.filter(deck => !destination.map(d => d.id).includes(deck.id));
 };
 
-Promise.all([getMyDecksFromMV(), getMyDecksFromDoK()])
+Promise.all([MasterVault.getMyDecks(), getMyDecksFromDoK()])
   .then(([mv, kof]) => delta(mv, kof))
   .then(importDecksIntoDoK)
   .catch(err => console.log(err.message));
 
-Promise.all([getMyDecksFromMV(), getMyDecksFromCrucible()])
-  .then(([mv, crucible]) => delta(mv, crucible))
-  .then(importDecksIntoCrucible)
-  .catch(err => console.log(err.message));
+// Promise.all([mv.getMyDecks(), getMyDecksFromCrucible()])
+//   .then(([mv, crucible]) => delta(mv, crucible))
+//   .then(importDecksIntoCrucible)
+//   .catch(err => console.log(err.message));
