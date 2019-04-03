@@ -1,7 +1,5 @@
 require("dotenv").config();
 const MasterVault = require("./master-vault");
-const DoK = require("./dok");
-const Crucible = require("./crucible");
 
 const delta = (source, destination) => {
   console.log(
@@ -12,12 +10,46 @@ const delta = (source, destination) => {
   return source.filter(deck => !destination.map(d => d.id).includes(deck.id));
 };
 
-Promise.all([MasterVault.getMyDecks(), DoK.getMyDecks()])
-  .then(([mv, kof]) => delta(mv, kof))
-  .then(DoK.importDecks)
-  .catch(err => console.log(err.message));
+// temporary for rapid debugging
+const dok = true;
+const crucible = true;
 
-Promise.all([MasterVault.getMyDecks(), Crucible.getMyDecks()])
-  .then(([mv, crucible]) => delta(mv, crucible))
-  .then(Crucible.importDecks)
-  .catch(err => console.log(err.message));
+MasterVault.getMyDecks()
+  .then(mvDecks => {
+    if (dok) {
+      const DoK = require("./dok");
+      const dokEmail = process.env.DOK_EMAIL;
+      const dokPassword = process.env.DOK_PASSWORD;
+      const dokUserName = process.env.DOK_USER_NAME;
+
+      DoK.login(dokEmail, dokPassword)
+        .then(token => {
+          DoK.getMyDecks(dokUserName, token)
+            .then(dokDecks => delta(mvDecks, dokDecks))
+            .then(decks => DoK.importDecks(token, decks))
+            .catch(err => {
+              console.log("Error connecting to Decks Of Keyforge");
+              console.log(err.message);
+            });
+        })
+        .catch(err => {
+          console.log("Error connecting to Decks Of Keyforge");
+          console.log(err.message);
+        });
+    }
+    if (crucible) {
+      const Crucible = require("./crucible");
+
+      Crucible.getMyDecks()
+        .then(crucibleDecks => delta(mvDecks, crucibleDecks))
+        .then(Crucible.importDecks)
+        .catch(err => {
+          console.log("Error connecting to Crucible");
+          console.log(err.message);
+        });
+    }
+  })
+  .catch(err => {
+    console.log("Error connecting to Master Vault");
+    console.log(err.message);
+  });

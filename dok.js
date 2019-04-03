@@ -1,20 +1,17 @@
 const request = require("request-promise-native");
 
-const DoKBearerToken = process.env.DOK_TOKEN;
-
-const getMyDecks = (page = 0, prev = []) => {
+const getMyDecks = (username, token, page = 0, prev = []) => {
   return request({
     method: "POST",
     url: "https://decksofkeyforge.com/api/decks/filter",
     headers: {
-      authorization:
-        "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ3aWxsaWFtZHdlYXZlckBnbWFpbC5jb20iLCJpYXQiOjE1NTQwNjkyNjAsImV4cCI6MTU1NDY3NDA2MCwiUm9sZSI6IlVTRVIifQ.vk4mkrxlxpDLWtQUmr4Kp8J1lrb7Ssl9PlCX6f7-r73AetJz3ohpQrTZzo9qCzvGxUSamAM_J6S1ReBPJbqjoQ",
+      authorization: token,
       "content-type": "application/json"
     },
     body: {
       page: page,
       sortDirection: "DESC",
-      owner: "funkymonkeymonk"
+      owner: username
     },
     json: true
   }).then(res => {
@@ -28,22 +25,35 @@ const getMyDecks = (page = 0, prev = []) => {
       }))
     );
 
-    return getMyDecks(page + 1, decks);
+    return getMyDecks(username, token, page + 1, decks);
   });
 };
 
-const importDecks = decks => {
+const importDecks = (token, decks) => {
   if (decks.length === 0) console.log("No new decks to import.");
   for (let deck of decks) {
     console.log(`Importing ${deck.name} into DoK`);
     request({
       method: "POST",
       url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
-      headers: { authorization: DoKBearerToken }
+      headers: { authorization: token }
     })
       .then(console.log(`Imported ${deck.name} into DoK`))
       .catch(err => console.log(`Import failed`));
   }
 };
 
-module.exports = { getMyDecks, importDecks };
+const login = (email, password) => {
+  return request({
+    method: "POST",
+    url: "https://decksofkeyforge.com/api/users/login",
+    body: {
+      email: email,
+      password: password
+    },
+    json: true,
+    resolveWithFullResponse: true
+  }).then(res => res.headers.authorization);
+};
+
+module.exports = { getMyDecks, importDecks, login };
