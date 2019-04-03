@@ -1,4 +1,5 @@
 const request = require("request-promise-native");
+const delta = require("./utils").delta;
 
 const CrucibleUserId = process.env.CRUCIBLE_USER;
 
@@ -51,4 +52,24 @@ const login = (username, password) => {
   }).then(res => res.token);
 };
 
-module.exports = { getMyDecks, importDecks, login };
+const sync = mvDecks => {
+  const username = process.env.CRUCIBLE_USERNAME;
+  const password = process.env.CRUCIBLE_PASSWORD;
+
+  login(username, password)
+    .then(token => {
+      getMyDecks(token)
+        .then(crucibleDecks => delta(mvDecks, crucibleDecks))
+        .then(decks => importDecks(token, decks))
+        .catch(err => {
+          console.log("Error syncing Crucible");
+          console.log(err.message);
+        });
+    })
+    .catch(err => {
+      console.log("Error connecting to Crucible");
+      console.log(err.message);
+    });
+};
+
+module.exports = { sync };

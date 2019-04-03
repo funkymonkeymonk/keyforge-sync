@@ -1,4 +1,5 @@
 const request = require("request-promise-native");
+const delta = require("./utils").delta;
 
 const getMyDecks = (username, token, page = 0, prev = []) => {
   return request({
@@ -56,4 +57,25 @@ const login = (email, password) => {
   }).then(res => res.headers.authorization);
 };
 
-module.exports = { getMyDecks, importDecks, login };
+const sync = mvDecks => {
+  const email = process.env.DOK_EMAIL;
+  const password = process.env.DOK_PASSWORD;
+  const username = process.env.DOK_USERNAME;
+
+  login(email, password)
+    .then(token => {
+      getMyDecks(username, token)
+        .then(dokDecks => delta(mvDecks, dokDecks))
+        .then(decks => importDecks(token, decks))
+        .catch(err => {
+          console.log("Error syncing Decks Of Keyforge");
+          console.log(err.message);
+        });
+    })
+    .catch(err => {
+      console.log("Error connecting to Decks Of Keyforge");
+      console.log(err.message);
+    });
+};
+
+module.exports = { sync };
