@@ -18,17 +18,17 @@ MasterVault.getMyDecks()
   .then(mvDecks => {
     if (dok) {
       const DoK = require("./dok");
-      const dokEmail = process.env.DOK_EMAIL;
-      const dokPassword = process.env.DOK_PASSWORD;
-      const dokUserName = process.env.DOK_USER_NAME;
+      const email = process.env.DOK_EMAIL;
+      const password = process.env.DOK_PASSWORD;
+      const username = process.env.DOK_USERNAME;
 
-      DoK.login(dokEmail, dokPassword)
+      DoK.login(email, password)
         .then(token => {
-          DoK.getMyDecks(dokUserName, token)
+          DoK.getMyDecks(username, token)
             .then(dokDecks => delta(mvDecks, dokDecks))
             .then(decks => DoK.importDecks(token, decks))
             .catch(err => {
-              console.log("Error connecting to Decks Of Keyforge");
+              console.log("Error syncing Decks Of Keyforge");
               console.log(err.message);
             });
         })
@@ -37,12 +37,22 @@ MasterVault.getMyDecks()
           console.log(err.message);
         });
     }
+
     if (crucible) {
       const Crucible = require("./crucible");
+      const username = process.env.CRUCIBLE_USERNAME;
+      const password = process.env.CRUCIBLE_PASSWORD;
 
-      Crucible.getMyDecks()
-        .then(crucibleDecks => delta(mvDecks, crucibleDecks))
-        .then(Crucible.importDecks)
+      Crucible.login(username, password)
+        .then(token => {
+          Crucible.getMyDecks(token)
+            .then(crucibleDecks => delta(mvDecks, crucibleDecks))
+            .then(decks => Crucible.importDecks(token, decks))
+            .catch(err => {
+              console.log("Error syncing Crucible");
+              console.log(err.message);
+            });
+        })
         .catch(err => {
           console.log("Error connecting to Crucible");
           console.log(err.message);
