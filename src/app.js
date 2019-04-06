@@ -1,6 +1,5 @@
 require("dotenv").config();
 const MasterVault = require("./master-vault");
-const delta = require("./utils").delta;
 
 // temporary for rapid debugging
 const dok = true;
