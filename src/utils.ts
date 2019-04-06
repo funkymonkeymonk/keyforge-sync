@@ -1,7 +1,4 @@
-interface Deck {
-  name: string;
-  id: string;
-}
+import { Deck } from "./deck";
 
 const delta = (source: Deck[], destination: Deck[]) => {
   console.log(

@@ -1,9 +1,10 @@
-const request = require("request-promise-native");
+import { Deck } from "./deck";
+import * as request from "request-promise-native";
 
 const MasterVaultToken = process.env.MV_TOKEN;
 const MasterVaultUserId = process.env.MV_USER;
 
-const getMyDecks = (page = 1, prev = []) => {
+const getMyDecks = (page: number = 1, prev: Deck[] = []): Promise<Deck[]> => {
   return request({
     method: "GET",
     url: `https://www.keyforgegame.com/api/users/${MasterVaultUserId}/decks/`,
@@ -16,10 +17,7 @@ const getMyDecks = (page = 1, prev = []) => {
     json: true
   }).then(res => {
     const decks = prev.concat(
-      res.data.map(deck => ({
-        name: deck.name,
-        id: deck.id
-      }))
+      res.data.map((deck: Deck) => new Deck(deck.name, deck.id))
     );
 
     // Return all results if complete

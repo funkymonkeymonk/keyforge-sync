@@ -5,7 +5,7 @@
     "preserveConstEnums": true,
     "removeComments": true,
     "allowJs": true,
-    "target": "es2016",
+    "target": "es5",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },
