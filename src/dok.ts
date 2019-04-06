@@ -1,5 +1,6 @@
 import { Deck } from "./deck";
 import * as request from "request-promise-native";
+
 const delta = require("./utils").delta;
 
 interface dokDeckData {

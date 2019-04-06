@@ -1,9 +1,16 @@
-const request = require("request-promise-native");
+import { Deck } from "./deck";
+import * as request from "request-promise-native";
+
 const delta = require("./utils").delta;
 
 const CrucibleUserId = process.env.CRUCIBLE_USER;
 
-const getMyDecks = token => {
+interface crucibleDeckData {
+  identity: string;
+  uuid: string;
+}
+
+const getMyDecks = (token: string) => {
   return request({
     method: "GET",
     url: "https://www.thecrucible.online/api/decks",
@@ -13,14 +20,14 @@ const getMyDecks = token => {
     },
     json: true
   }).then(res => {
-    return res.decks.map(deck => ({
+    return res.decks.map((deck: crucibleDeckData) => ({
       name: deck.identity,
       id: deck.uuid
     }));
   });
 };
 
-const importDecks = (token, decks, dryRun) => {
+const importDecks = (token: string, decks: Deck[], dryRun: boolean) => {
   if (decks.length === 0) console.log("No new decks to import.");
 
   for (let deck of decks) {
@@ -36,13 +43,13 @@ const importDecks = (token, decks, dryRun) => {
         body: { uuid: deck.id },
         json: true
       })
-        .then(console.log(`Imported ${deck.name} into Crucible`))
+        .then(resp => console.log(`Imported ${deck.name} into Crucible`))
         .catch(err => console.log(`Import failed`));
     } else console.log("Dry run, not importing");
   }
 };
 
-const login = (username, password) => {
+const login = (username: string, password: string) => {
   return request({
     method: "POST",
     url: "https://www.thecrucible.online/api/account/login",
@@ -54,7 +61,7 @@ const login = (username, password) => {
   }).then(res => res.token);
 };
 
-const sync = (mvDecks, dryRun) => {
+const sync = (mvDecks: boolean, dryRun: boolean) => {
   const username = process.env.CRUCIBLE_USERNAME;
   const password = process.env.CRUCIBLE_PASSWORD;
 
