@@ -1,4 +1,9 @@
-const delta = (source, destination) => {
+interface Deck {
+  name: string;
+  id: string;
+}
+
+const delta = (source: Deck[], destination: Deck[]) => {
   console.log(
     `${source.length} decks in source -> ${
       destination.length
