@@ -20,23 +20,25 @@ const getMyDecks = token => {
   });
 };
 
-const importDecks = (token, decks) => {
+const importDecks = (token, decks, dryRun) => {
   if (decks.length === 0) console.log("No new decks to import.");
 
   for (let deck of decks) {
     console.log(`Importing ${deck.name} into Crucible`);
-    request({
-      method: "POST",
-      url: "https://www.thecrucible.online/api/decks/",
-      headers: {
-        authorization: "Bearer " + token,
-        "content-type": "application/json"
-      },
-      body: { uuid: deck.id },
-      json: true
-    })
-      .then(console.log(`Imported ${deck.name} into Crucible`))
-      .catch(err => console.log(`Import failed`));
+    if (!dryRun) {
+      request({
+        method: "POST",
+        url: "https://www.thecrucible.online/api/decks/",
+        headers: {
+          authorization: "Bearer " + token,
+          "content-type": "application/json"
+        },
+        body: { uuid: deck.id },
+        json: true
+      })
+        .then(console.log(`Imported ${deck.name} into Crucible`))
+        .catch(err => console.log(`Import failed`));
+    } else console.log("Dry run, not importing");
   }
 };
 
@@ -52,7 +54,7 @@ const login = (username, password) => {
   }).then(res => res.token);
 };
 
-const sync = mvDecks => {
+const sync = (mvDecks, dryRun) => {
   const username = process.env.CRUCIBLE_USERNAME;
   const password = process.env.CRUCIBLE_PASSWORD;
 
@@ -60,7 +62,7 @@ const sync = mvDecks => {
     .then(token => {
       getMyDecks(token)
         .then(crucibleDecks => delta(mvDecks, crucibleDecks))
-        .then(decks => importDecks(token, decks))
+        .then(decks => importDecks(token, decks, dryRun))
         .catch(err => {
           console.log("Error syncing Crucible");
           console.log(err.message);

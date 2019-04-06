@@ -30,17 +30,19 @@ const getMyDecks = (username, token, page = 0, prev = []) => {
   });
 };
 
-const importDecks = (token, decks) => {
+const importDecks = (token, decks, dryRun) => {
   if (decks.length === 0) console.log("No new decks to import.");
   for (let deck of decks) {
     console.log(`Importing ${deck.name} into DoK`);
-    request({
-      method: "POST",
-      url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
-      headers: { authorization: token }
-    })
-      .then(console.log(`Imported ${deck.name} into DoK`))
-      .catch(err => console.log(`Import failed`));
+    if (!dryRun) {
+      request({
+        method: "POST",
+        url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
+        headers: { authorization: token }
+      })
+        .then(console.log(`Imported ${deck.name} into DoK`))
+        .catch(err => console.log(`Import failed`));
+    } else console.log("Dry run, not importing");
   }
 };
 
@@ -57,7 +59,7 @@ const login = (email, password) => {
   }).then(res => res.headers.authorization);
 };
 
-const sync = mvDecks => {
+const sync = (mvDecks, dryRun) => {
   const email = process.env.DOK_EMAIL;
   const password = process.env.DOK_PASSWORD;
   const username = process.env.DOK_USERNAME;
@@ -66,7 +68,7 @@ const sync = mvDecks => {
     .then(token => {
       getMyDecks(username, token)
         .then(dokDecks => delta(mvDecks, dokDecks))
-        .then(decks => importDecks(token, decks))
+        .then(decks => importDecks(token, decks, dryRun))
         .catch(err => {
           console.log("Error syncing Decks Of Keyforge");
           console.log(err.message);
