@@ -4,6 +4,11 @@ import * as request from "request-promise-native";
 const MasterVaultToken = process.env.MV_TOKEN;
 const MasterVaultUserId = process.env.MV_USER;
 
+interface mvDeckData {
+  name: string;
+  id: string;
+}
+
 const getMyDecks = (page: number = 1, prev: Deck[] = []): Promise<Deck[]> => {
   return request({
     method: "GET",
@@ -17,7 +22,7 @@ const getMyDecks = (page: number = 1, prev: Deck[] = []): Promise<Deck[]> => {
     json: true
   }).then(res => {
     const decks = prev.concat(
-      res.data.map((deck: Deck) => new Deck(deck.name, deck.id))
+      res.data.map((deck: mvDeckData) => new Deck(deck.name, deck.id))
     );
 
     // Return all results if complete
