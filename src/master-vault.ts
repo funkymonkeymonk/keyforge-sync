@@ -20,15 +20,21 @@ const getMyDecks = (page: number = 1, prev: Deck[] = []): Promise<Deck[]> => {
     },
     headers: { authorization: MasterVaultToken },
     json: true
-  }).then(res => {
-    const decks = prev.concat(
-      res.data.map((deck: mvDeckData) => new Deck(deck.name, deck.id))
-    );
+  })
+    .then(res => {
+      const decks = prev.concat(
+        res.data.map((deck: mvDeckData) => new Deck(deck.name, deck.id))
+      );
 
-    // Return all results if complete
-    if (decks.length >= res.count) return decks;
-    else return getMyDecks(page + 1, decks);
-  });
+      // Return all results if complete
+      if (decks.length >= res.count) return decks;
+      else return getMyDecks(page + 1, decks);
+    })
+    .catch(err => {
+      console.log("Error connecting to Master Vault");
+      console.log(err.message);
+      return [];
+    });
 };
 
 module.exports = { getMyDecks };
