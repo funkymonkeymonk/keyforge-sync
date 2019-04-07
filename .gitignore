@@ -1,6 +1,13 @@
-node_modules
+*-debug.log
+*-error.log
+*.dat
 .env
 .env.*
 .vscode
+/.nyc_output
+/dist
+/lib
+/tmp
+/yarn.lock
 build
-*.dat
+node_modules

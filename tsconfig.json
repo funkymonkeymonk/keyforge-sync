@@ -1,14 +1,20 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "importHelpers": true,
+    "module": "commonjs",
+    "outDir": "lib",
+    "rootDir": "src",
+    "strict": true,
+    "target": "es2017",
+    "composite": true,
     "noImplicitAny": true,
-    "outDir": "./build/",
     "preserveConstEnums": true,
     "removeComments": true,
     "allowJs": true,
-    "target": "es5",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node"
   },
-  "include": ["./src/**/*"]
+  "include": ["src/**/*"]
 }
