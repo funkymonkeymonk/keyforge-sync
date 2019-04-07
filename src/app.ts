@@ -7,14 +7,17 @@ const dok = true;
 const crucible = true;
 const dryRun = false;
 
-MasterVault.getMyDecks().then((mvDecks: Deck[]) => {
+import { read } from "./credentials";
+const creds = read("creds.dat");
+
+MasterVault.getMyDecks(creds.mv).then((mvDecks: Deck[]) => {
   if (dok) {
     const DoK = require("./dok");
-    DoK.sync(mvDecks, dryRun);
+    DoK.sync(creds.dok, mvDecks, dryRun);
   }
 
   if (crucible) {
     const Crucible = require("./crucible");
-    Crucible.sync(mvDecks, dryRun);
+    Crucible.sync(creds.crucible, mvDecks, dryRun);
   }
 });

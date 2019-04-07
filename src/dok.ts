@@ -15,17 +15,6 @@ class User {
   ) {}
 }
 
-import { read, write } from "./credentials";
-
-const loadCreds = () => {
-  const user: User = read("will_dok.dat");
-  return user;
-};
-
-const saveCreds = (user: any) => {
-  return write("will_dok.dat", user);
-};
-
 const getMyDecks = (
   username: string,
   token: string,
@@ -89,9 +78,7 @@ const login = (email: string, password: string) => {
   }).then(res => res.headers.authorization);
 };
 
-export const sync = (mvDecks: Deck[], dryRun: boolean) => {
-  const user = loadCreds();
-
+export const sync = (user: User, mvDecks: Deck[], dryRun: boolean) => {
   login(user.email, user.password)
     .then((token: string) => {
       getMyDecks(user.username, token)

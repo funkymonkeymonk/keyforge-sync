@@ -15,17 +15,6 @@ class User {
   ) {}
 }
 
-import { read, write } from "./credentials";
-
-const loadCreds = () => {
-  const user: User = read("will_crucible.dat");
-  return user;
-};
-
-const saveCreds = (user: any) => {
-  return write("will_crucible.dat", user);
-};
-
 const getMyDecks = (token: string, userId: string) => {
   return request({
     method: "GET",
@@ -77,15 +66,12 @@ const login = (username: string, password: string) => {
   }).then(res => res.token);
 };
 
-export const sync = (mvDecks: Deck[], dryRun: boolean) => {
-  const user = loadCreds();
-
+export const sync = (user: User, mvDecks: Deck[], dryRun: boolean) => {
   login(user.username, user.password)
     .then(token => {
       getMyDecks(token, user.userId)
         .then((crucibleDecks: Deck[]) => delta(mvDecks, crucibleDecks))
         .then((decks: Deck[]) => importDecks(token, decks, dryRun))
-        .then(() => saveCreds(user))
         .catch(err => {
           console.log("Error syncing Crucible");
           console.log(err.message);

@@ -10,19 +10,11 @@ class User {
   constructor(public id: string, public token: string) {}
 }
 
-import { read, write } from "./credentials";
-
-const loadCreds = () => {
-  const user: User = read("will_mv.dat");
-  return user;
-};
-
 export const getMyDecks = (
+  user: User,
   page: number = 1,
   prev: Deck[] = []
 ): Promise<Deck[]> => {
-  const user = loadCreds();
-
   return request({
     method: "GET",
     url: `https://www.keyforgegame.com/api/users/${user.id}/decks/`,
@@ -41,7 +33,7 @@ export const getMyDecks = (
 
       // Return all results if complete
       if (decks.length >= res.count) return decks;
-      else return getMyDecks(page + 1, decks);
+      else return getMyDecks(user, page + 1, decks);
     })
     .catch(err => {
       console.log("Error connecting to Master Vault");
