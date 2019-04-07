@@ -1,20 +1,36 @@
 import { Deck } from "./deck";
 import * as request from "request-promise-native";
-
-const delta = require("./utils").delta;
-
-const CrucibleUserId = process.env.CRUCIBLE_USER;
+import { delta } from "./utils";
 
 interface crucibleDeckData {
   identity: string;
   uuid: string;
 }
 
-const getMyDecks = (token: string) => {
+class User {
+  constructor(
+    public username: string,
+    public password: string,
+    public userId: string
+  ) {}
+}
+
+import { read, write } from "./credentials";
+
+const loadCreds = () => {
+  const user: User = read("will_crucible.dat");
+  return user;
+};
+
+const saveCreds = (user: any) => {
+  return write("will_crucible.dat", user);
+};
+
+const getMyDecks = (token: string, userId: string) => {
   return request({
     method: "GET",
     url: "https://www.thecrucible.online/api/decks",
-    qs: { _: CrucibleUserId },
+    qs: { _: userId },
     headers: {
       authorization: "Bearer " + token
     },
@@ -61,15 +77,15 @@ const login = (username: string, password: string) => {
   }).then(res => res.token);
 };
 
-const sync = (mvDecks: boolean, dryRun: boolean) => {
-  const username = process.env.CRUCIBLE_USERNAME;
-  const password = process.env.CRUCIBLE_PASSWORD;
+export const sync = (mvDecks: Deck[], dryRun: boolean) => {
+  const user = loadCreds();
 
-  login(username, password)
+  login(user.username, user.password)
     .then(token => {
-      getMyDecks(token)
-        .then(crucibleDecks => delta(mvDecks, crucibleDecks))
-        .then(decks => importDecks(token, decks, dryRun))
+      getMyDecks(token, user.userId)
+        .then((crucibleDecks: Deck[]) => delta(mvDecks, crucibleDecks))
+        .then((decks: Deck[]) => importDecks(token, decks, dryRun))
+        .then(() => saveCreds(user))
         .catch(err => {
           console.log("Error syncing Crucible");
           console.log(err.message);
@@ -80,5 +96,3 @@ const sync = (mvDecks: boolean, dryRun: boolean) => {
       console.log(err.message);
     });
 };
-
-module.exports = { sync };

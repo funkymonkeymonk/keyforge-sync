@@ -1,12 +1,30 @@
 import { Deck } from "./deck";
 import * as request from "request-promise-native";
-
-const delta = require("./utils").delta;
+import { delta } from "./utils";
 
 interface dokDeckData {
   name: string;
   keyforgeId: string;
 }
+
+class User {
+  constructor(
+    public email: string,
+    public password: string,
+    public username: string
+  ) {}
+}
+
+import { read, write } from "./credentials";
+
+const loadCreds = () => {
+  const user: User = read("will_dok.dat");
+  return user;
+};
+
+const saveCreds = (user: any) => {
+  return write("will_dok.dat", user);
+};
 
 const getMyDecks = (
   username: string,
@@ -71,14 +89,12 @@ const login = (email: string, password: string) => {
   }).then(res => res.headers.authorization);
 };
 
-const sync = (mvDecks: Deck[], dryRun: boolean) => {
-  const email = process.env.DOK_EMAIL;
-  const password = process.env.DOK_PASSWORD;
-  const username = process.env.DOK_USERNAME;
+export const sync = (mvDecks: Deck[], dryRun: boolean) => {
+  const user = loadCreds();
 
-  login(email, password)
+  login(user.email, user.password)
     .then((token: string) => {
-      getMyDecks(username, token)
+      getMyDecks(user.username, token)
         .then((dokDecks: Deck[]) => delta(mvDecks, dokDecks))
         .then((decks: Deck[]) => importDecks(token, decks, dryRun))
         .catch(err => {
@@ -91,5 +107,3 @@ const sync = (mvDecks: Deck[], dryRun: boolean) => {
       console.log(err.message);
     });
 };
-
-module.exports = { sync };
