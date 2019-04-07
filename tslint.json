@@ -1,3 +1,14 @@
 {
-  "extends": "@oclif/tslint"
+  "extends": "@oclif/tslint",
+  "rules": {
+    "object-curly-spacing": false,
+    "quotemark": false,
+    "semicolon": false,
+    "no-console": false,
+    "ordered-imports": false,
+    "class-name": false,
+    "no-inferrable-types": false,
+    "object-literal-shorthand": false,
+    "no-unused": false
+  }
 }

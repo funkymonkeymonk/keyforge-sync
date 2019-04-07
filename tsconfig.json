@@ -11,10 +11,11 @@
     "noImplicitAny": true,
     "preserveConstEnums": true,
     "removeComments": true,
-    "allowJs": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }
