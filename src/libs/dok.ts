@@ -12,7 +12,7 @@ class User {
     public email: string,
     public password: string,
     public username: string
-  ) {}
+  ) { }
 }
 
 const getMyDecks = (
@@ -26,7 +26,8 @@ const getMyDecks = (
     url: "https://decksofkeyforge.com/api/decks/filter",
     headers: {
       authorization: token,
-      "content-type": "application/json"
+      "content-type": "application/json",
+      "timezone": 240
     },
     body: {
       page: page,
