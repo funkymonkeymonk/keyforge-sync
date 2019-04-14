@@ -98,8 +98,13 @@ _See code: [src/commands/sync.ts](https://github.com/funkymonkeymonk/keyforge-sy
 <!-- commandsstop -->
 
 # TODO
-
-- [ ] Automate credential setup
+- [X] CI
+- [ ] Test coverage
+- [ ] Codecov
+- [ ] "Easy" credential setup
+  - [ ] Decks of Keyforge
+  - [ ] Crucible
+  - [ ] Master Vault (This may not be doable given existing setup)
 - [ ] Multiuser
 - [ ] Sync only hearted decks
 - [ ] GUI?
