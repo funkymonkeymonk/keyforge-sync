@@ -27,7 +27,7 @@ const getMyDecks = (
     headers: {
       authorization: token,
       "content-type": "application/json",
-      "timezone": 240
+      timezone: 240
     },
     body: {
       page: page,
