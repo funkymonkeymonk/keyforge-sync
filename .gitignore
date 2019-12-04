@@ -1,6 +1,7 @@
 *-debug.log
 *-error.log
 *.dat
+*.tsbuildinfo
 .env
 .env.*
 .vscode
@@ -11,3 +12,4 @@
 /yarn.lock
 build
 node_modules
+exec

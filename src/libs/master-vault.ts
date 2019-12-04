@@ -7,7 +7,7 @@ interface mvDeckData {
 }
 
 class User {
-  constructor(public id: string, public token: string) {}
+  constructor(public name: string, public id: string, public token: string) {}
 }
 
 export const getMyDecks = (
@@ -36,7 +36,7 @@ export const getMyDecks = (
       else return getMyDecks(user, page + 1, decks);
     })
     .catch(err => {
-      console.log("Error connecting to Master Vault");
+      console.log("Error connecting to Master Vault for user: " + user.name);
       console.log(err.message);
       return [];
     });
