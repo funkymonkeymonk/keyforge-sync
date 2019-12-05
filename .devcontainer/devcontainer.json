@@ -16,10 +16,8 @@
 	// Uncomment the next line to run commands after the container is created.
 	// "postCreateCommand": "yarn install",
 
-	// Uncomment the next line to use a non-root user. On Linux, this will prevent
-	// new files getting created as root, but you may need to update the USER_UID
-	// and USER_GID in .devcontainer/Dockerfile to match your user if not 1000.
-	// "runArgs": [ "-u", "node" ],
+	// Volume mount the docker socket
+	"runArgs": ["-v","/var/run/docker.sock:/var/run/docker.sock"]
 
 	// Add the IDs of extensions you want installed when the container is created in the array below.
 	"extensions": [
