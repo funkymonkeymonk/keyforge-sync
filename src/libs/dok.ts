@@ -1,6 +1,6 @@
 import { Deck } from "./deck";
 import * as request from "request-promise-native";
-import { delta } from "./utils";
+import { delta, notify } from "./utils";
 
 interface dokDeckData {
   name: string;
@@ -50,7 +50,10 @@ const getMyDecks = (
   });
 };
 
-const importDecks = (token: string, decks: Deck[], dryRun: boolean) => {
+const importDecks = (token: string, decks: Deck[], creds: any, dryRun: boolean) => {
+  // Dev flag
+  const notifyEnabled = true
+
   if (decks.length === 0) console.log("No new decks to import.");
   for (let deck of decks) {
     console.log(`Importing ${deck.name} into DoK`);
@@ -60,9 +63,15 @@ const importDecks = (token: string, decks: Deck[], dryRun: boolean) => {
         url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
         headers: { authorization: token }
       })
-        .then(res => console.log(`Imported ${deck.name} into DoK`))
+        .then(res => {
+          console.log(`Imported ${deck.name} into DoK`)
+          if (notifyEnabled) notify(creds, deck)
+        })
         .catch(err => console.log(`Import failed`));
-    } else console.log("Dry run, not importing");
+    } else { 
+      if (notifyEnabled) notify(creds, deck)
+      console.log("Dry run, not importing")
+    }
   }
 };
 
@@ -79,12 +88,14 @@ const login = (email: string, password: string) => {
   }).then(res => res.headers.authorization);
 };
 
-export const sync = (user: User, mvDecks: Deck[], dryRun: boolean) => {
+export const sync = (creds: any, mvDecks: Deck[], dryRun: boolean) => {
+  const user: User = creds.dok
+
   login(user.email, user.password)
     .then((token: string) => {
       getMyDecks(user.username, token)
         .then((dokDecks: Deck[]) => delta(mvDecks, dokDecks))
-        .then((decks: Deck[]) => importDecks(token, decks, dryRun))
+        .then((decks: Deck[]) => importDecks(token, decks, creds, dryRun))
         .catch(err => {
           console.log("Error syncing Decks Of Keyforge");
           console.log(err.message);

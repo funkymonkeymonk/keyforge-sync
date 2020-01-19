@@ -27,7 +27,7 @@ export default class Sync extends Command {
       MasterVault.getMyDecks(creds.mv).then((mvDecks: Deck[]) => {
         //Sync dok
         const DoK = require("../libs/dok");
-        DoK.sync(creds.dok, mvDecks, dryRun);
+        DoK.sync(creds, mvDecks, dryRun);
 
         //Sync crucible
         const Crucible = require("../libs/crucible");
