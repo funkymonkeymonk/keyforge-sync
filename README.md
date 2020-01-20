@@ -101,10 +101,12 @@ _See code: [src/commands/sync.ts](https://github.com/funkymonkeymonk/keyforge-sy
 - [X] CI
 - [ ] Test coverage
 - [ ] Codecov
+- [X] Multiuser
+- [X] Push notifications (via pushover)
+- [ ] Automated Continuous Testing/Delivery
 - [ ] "Easy" credential setup
   - [ ] Decks of Keyforge
   - [ ] Crucible
   - [ ] Master Vault (This may not be doable given existing setup)
-- [ ] Multiuser
 - [ ] Sync only hearted decks
 - [ ] GUI?
