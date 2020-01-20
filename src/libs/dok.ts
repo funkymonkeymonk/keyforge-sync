@@ -68,7 +68,7 @@ const importDecks = (token: string, decks: Deck[], creds: any, dryRun: boolean) 
           if (notifyEnabled) notify(creds, deck)
         })
         .catch(err => console.log(`Import failed`));
-    } else { 
+    } else {
       if (notifyEnabled) notify(creds, deck)
       console.log("Dry run, not importing")
     }
