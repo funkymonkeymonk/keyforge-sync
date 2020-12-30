@@ -1,4 +1,4 @@
-import { Deck } from "./deck";
+import {Deck} from "./deck";
 import * as request from "request-promise-native";
 
 interface mvDeckData {
@@ -7,7 +7,8 @@ interface mvDeckData {
 }
 
 class User {
-  constructor(public name: string, public id: string, public token: string) {}
+  constructor(public name: string, public id: string, public token: string) {
+  }
 }
 
 export const getMyDecks = (
@@ -23,7 +24,7 @@ export const getMyDecks = (
       page_size: "30",
       ordering: "-date"
     },
-    headers: { authorization: user.token },
+    headers: {authorization: user.token},
     json: true
   })
     .then(res => {
@@ -36,8 +37,8 @@ export const getMyDecks = (
       else return getMyDecks(user, page + 1, decks);
     })
     .catch(err => {
-      console.log("Error connecting to Master Vault for user: " + user.name);
-      console.log(err.message);
+      console.error("Error connecting to Master Vault for user: " + user.name);
+      console.error(err.message);
       return [];
     });
 };

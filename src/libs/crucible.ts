@@ -1,6 +1,6 @@
-import { Deck } from "./deck";
+import {Deck} from "./deck";
 import * as request from "request-promise-native";
-import { delta } from "./utils";
+import {delta} from "./utils";
 
 interface crucibleDeckData {
   identity: string;
@@ -12,14 +12,15 @@ class User {
     public username: string,
     public password: string,
     public userId: string
-  ) {}
+  ) {
+  }
 }
 
 const getMyDecks = (token: string, userId: string) => {
   return request({
     method: "GET",
     url: "https://www.thecrucible.online/api/decks",
-    qs: { _: userId },
+    qs: {_: userId},
     headers: {
       authorization: "Bearer " + token
     },
@@ -33,10 +34,10 @@ const getMyDecks = (token: string, userId: string) => {
 };
 
 const importDecks = (token: string, decks: Deck[], dryRun: boolean) => {
-  if (decks.length === 0) console.log("No new decks to import.");
+  if (decks.length === 0) console.info("No new decks to import.");
 
   for (let deck of decks) {
-    console.log(`Importing ${deck.name} into Crucible`);
+    console.info(`Importing ${deck.name} into Crucible`);
     if (!dryRun) {
       request({
         method: "POST",
@@ -45,12 +46,12 @@ const importDecks = (token: string, decks: Deck[], dryRun: boolean) => {
           authorization: "Bearer " + token,
           "content-type": "application/json"
         },
-        body: { uuid: deck.id },
+        body: {uuid: deck.id},
         json: true
       })
-        .then(resp => console.log(`Imported ${deck.name} into Crucible`))
-        .catch(err => console.log(`Import failed`));
-    } else console.log("Dry run, not importing");
+        .then(resp => console.info(`Imported ${deck.name} into Crucible`))
+        .catch(err => console.error(`Import failed`));
+    } else console.info("Dry run, not importing");
   }
 };
 
@@ -73,12 +74,12 @@ export const sync = (user: User, mvDecks: Deck[], dryRun: boolean) => {
         .then((crucibleDecks: Deck[]) => delta(mvDecks, crucibleDecks))
         .then((decks: Deck[]) => importDecks(token, decks, dryRun))
         .catch(err => {
-          console.log("Error syncing Crucible");
-          console.log(err.message);
+          console.error("Error syncing Crucible");
+          console.error(err.message);
         });
     })
     .catch(err => {
-      console.log("Error connecting to Crucible");
-      console.log(err.message);
+      console.error("Error connecting to Crucible");
+      console.error(err.message);
     });
 };

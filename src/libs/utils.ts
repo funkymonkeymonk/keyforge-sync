@@ -1,10 +1,10 @@
-import { Deck } from "./deck";
+import {Deck} from "./deck";
 import * as request from "request-promise-native";
 
 export const delta = (source: Deck[], destination: Deck[]) => {
-  console.log(
+  console.info(
     `${source.length} decks in source -> ${
-    destination.length
+      destination.length
     } decks in destination`
   );
   return source.filter(deck => !destination.map(d => d.id).includes(deck.id));
@@ -18,11 +18,12 @@ class Message {
     public message: string,
     public url_title: string,
     public url: string
-  ) { }
+  ) {
+  }
 }
 
 export const notify = (creds: any, deck: Deck) => {
-  console.log(`sending push for ${deck.name}`)
+  console.info(`sending push for ${deck.name}`)
 
   const message = new Message(
     creds.pushover.apiKey,
@@ -38,5 +39,5 @@ export const notify = (creds: any, deck: Deck) => {
     uri: "https://api.pushover.net/1/messages.json",
     json: message
   })
-    .catch(err => console.log('Error sending notification to pushover: ' + err))
+    .catch(err => console.error('Error sending notification to pushover: ' + err))
 }

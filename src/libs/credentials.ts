@@ -3,7 +3,7 @@ import * as FileSystem from "fs";
 export const write = (filePath: string, data: any) => {
   try {
     FileSystem.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    return { message: "Encrypted!" };
+    return {message: "Encrypted!"};
   } catch (exception) {
     throw new Error(exception.message);
   }
