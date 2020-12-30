@@ -1,7 +1,7 @@
 const scheduledSync = require('../../../src/handlers/scheduled-sync');
 
 describe('Test for scheduledSync', function () {
-  it('calls calls sync when invoked', async () => {
+  xit('calls calls sync when invoked', async () => {
     // Mock console.info statements so we can verify them. For more information, see
     // https://jestjs.io/docs/en/mock-functions.html
     console.info = jest.fn()
