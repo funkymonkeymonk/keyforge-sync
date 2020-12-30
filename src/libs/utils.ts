@@ -22,7 +22,7 @@ class Message {
   }
 }
 
-export const notify = (creds: any, deck: Deck) => {
+export const notify = async (creds: any, deck: Deck) => {
   console.info(`sending push for ${deck.name}`)
 
   const message = new Message(
@@ -33,11 +33,14 @@ export const notify = (creds: any, deck: Deck) => {
     'View on Decks Of Keyforge',
     `https://www.decksofkeyforge.com/decks/${deck.id}`
   )
-
-  request({
-    method: "POST",
-    uri: "https://api.pushover.net/1/messages.json",
-    json: message
-  })
-    .catch(err => console.error('Error sending notification to pushover: ' + err))
+  try {
+    await request({
+      method: "POST",
+      uri: "https://api.pushover.net/1/messages.json",
+      json: message
+    })
+    console.info(`Push for ${deck.name} sent successfully`)
+  } catch(err) {
+    console.error('Error sending notification to pushover: ' + err)
+  }
 }

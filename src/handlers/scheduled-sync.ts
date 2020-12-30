@@ -35,8 +35,6 @@ export const handler: ScheduledHandler = async event => {
   // Fan out for each deck that needs to be loaded? Redesign the flow?
 
   const mvDecks: Deck[] = await MasterVault.getMyDecks(creds.mv)
-  console.info(JSON.stringify(mvDecks[0]))
   const dokDecks: Deck[] = await DoK.sync(creds, mvDecks, dryRun);
-  console.info(dokDecks)
   // Crucible.sync(creds.crucible, mvDecks, dryRun);
 }

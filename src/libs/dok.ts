@@ -51,7 +51,7 @@ const getMyDecks = (
   });
 };
 
-const importDecks = (token: string, decks: Deck[], creds: any, dryRun: boolean) => {
+const importDecks = async (token: string, decks: Deck[], creds: any, dryRun: boolean) => {
   // Dev flag
   const notifyEnabled = true
 
@@ -59,16 +59,17 @@ const importDecks = (token: string, decks: Deck[], creds: any, dryRun: boolean) 
   for (let deck of decks) {
     console.info(`Importing ${deck.name} into DoK`);
     if (!dryRun) {
-      request({
-        method: "POST",
-        url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
-        headers: {authorization: token}
-      })
-        .then(res => {
-          console.info(`Imported ${deck.name} into DoK`)
-          if (notifyEnabled) notify(creds, deck)
+      try {
+        await request({
+          method: "POST",
+          url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
+          headers: {authorization: token}
         })
-        .catch(err => console.error(`Import failed`));
+        console.info(`Imported ${deck.name} into DoK`)
+        if (notifyEnabled) await notify(creds, deck)
+      } catch(err) {
+        console.error(`Import failed`)
+      }
     } else {
       if (notifyEnabled) notify(creds, deck)
       console.info("Dry run, not importing")
@@ -90,19 +91,25 @@ const login = (email: string, password: string) => {
   }).then(res => res.headers.authorization);
 };
 
+async function diffAndUpload(user: User, token: string, mvDecks: Deck[], creds: any, dryRun: boolean) {
+  try {
+    const dokDecks: Deck[] = await getMyDecks(user.username, token)
+    const newDecks: Deck[] = delta(mvDecks, dokDecks)
+    const importedDecks: Deck[] = await importDecks(token, newDecks, creds, dryRun)
+    return importedDecks
+  } catch (err) {
+    console.error("Error syncing Decks Of Keyforge");
+    console.error(err.message);
+    return []
+  }
+}
+
 export const sync = async (creds: any, mvDecks: Deck[], dryRun: boolean): Promise<Deck[]>  => {
   const user: User = creds.dok
 
   try {
     let token: string = await login(user.email, user.password)
-    return await getMyDecks(user.username, token)
-      .then((dokDecks: Deck[]) => delta(mvDecks, dokDecks))
-      .then((decks: Deck[]) => importDecks(token, decks, creds, dryRun))
-      .catch(err => {
-        console.error("Error syncing Decks Of Keyforge");
-        console.error(err.message);
-        return []
-      });
+    return await diffAndUpload(user, token, mvDecks, creds, dryRun);
   } catch (err) {
     console.error("Error connecting to Decks Of Keyforge");
     console.error(err.message);
