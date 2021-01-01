@@ -28,9 +28,9 @@ export const getDecks = (
     json: true
   })
     .then(res => {
-      const decks: Deck[] = prev.concat(
-        res.data.map((deck: mvDeckData) => {deck.name, deck.id})
-      );
+      // This only works because the MV data comes back the way I want it.
+      // I should probably reconsider this line later
+      const decks: Deck[] = prev.concat(res.data);
 
       // Return all results if complete
       if (decks.length >= res.count) return decks;
