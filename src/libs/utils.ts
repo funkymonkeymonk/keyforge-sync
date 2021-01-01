@@ -1,4 +1,4 @@
-import {Deck} from "./deck";
+import {Deck} from "../types";
 import * as request from "request-promise-native";
 
 export const delta = (source: Deck[], destination: Deck[]) => {
@@ -26,8 +26,8 @@ export const notify = async (creds: any, deck: Deck) => {
   console.info(`sending push for ${deck.name}`)
 
   const message = new Message(
-    creds.pushover.apiKey,
-    creds.pushover.userKey,
+    creds.apiKey,
+    creds.userKey,
     `Deck added`,
     `${deck.name} imported into Decks of Keyforge`,
     'View on Decks Of Keyforge',

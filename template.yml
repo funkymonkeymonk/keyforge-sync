@@ -31,5 +31,5 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: rate(5 minutes)
-      MemorySize: 128
+      MemorySize: 256
       Timeout: 100

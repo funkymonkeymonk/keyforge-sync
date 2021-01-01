@@ -1,4 +1,4 @@
-import {Deck} from "./deck";
+import {Deck} from "../types";
 import * as request from "request-promise-native";
 import {delta} from "./utils";
 

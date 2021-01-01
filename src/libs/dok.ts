@@ -1,27 +1,38 @@
-import {Deck} from "./deck";
+import {Deck} from "../types";
 import * as request from "request-promise-native";
-import {delta, notify} from "./utils";
 
 interface dokDeckData {
   name: string;
   keyforgeId: string;
 }
 
-class User {
-  constructor(
-    public email: string,
-    public password: string,
-    public username: string
-  ) {
-  }
+interface User {
+  email: string
+  password: string
+  username: string
 }
 
-const getMyDecks = (
-  username: string,
+export const login = (user: User) => {
+  return request({
+    method: "POST",
+    url: "https://decksofkeyforge.com/api/users/login",
+    body: {
+      email: user.email,
+      password: user.password
+    },
+    json: true,
+    resolveWithFullResponse: true
+  })
+    .then(res => res.headers.authorization);
+};
+
+export const getDecks = (
+  user: User,
   token: string,
   page: number = 0,
   prev: Deck[] = []
 ): Promise<Deck[]> => {
+  const username = user.username
   return request({
     method: "POST",
     url: "https://decksofkeyforge.com/api/decks/filter",
@@ -47,72 +58,28 @@ const getMyDecks = (
       }))
     );
 
-    return getMyDecks(username, token, page + 1, decks);
+    return getDecks(user, token, page + 1, decks);
   });
 };
 
-const importDecks = async (token: string, decks: Deck[], creds: any, dryRun: boolean) => {
-  // Dev flag
-  const notifyEnabled = true
-
-  if (decks.length === 0) console.info("No new decks to import.");
-  for (let deck of decks) {
-    console.info(`Importing ${deck.name} into DoK`);
-    if (!dryRun) {
-      try {
-        await request({
-          method: "POST",
-          url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
-          headers: {authorization: token}
-        })
-        console.info(`Imported ${deck.name} into DoK`)
-        if (notifyEnabled) await notify(creds, deck)
-      } catch(err) {
-        console.error(`Import failed`)
-      }
-    } else {
-      if (notifyEnabled) notify(creds, deck)
-      console.info("Dry run, not importing")
-    }
-  }
-  return decks
-};
-
-const login = (email: string, password: string) => {
-  return request({
-    method: "POST",
-    url: "https://decksofkeyforge.com/api/users/login",
-    body: {
-      email: email,
-      password: password
-    },
-    json: true,
-    resolveWithFullResponse: true
-  }).then(res => res.headers.authorization);
-};
-
-async function diffAndUpload(user: User, token: string, mvDecks: Deck[], creds: any, dryRun: boolean) {
+async function addDeck(deck: Deck, token: string) {
+  console.info(`Importing ${deck.name} into DoK`);
   try {
-    const dokDecks: Deck[] = await getMyDecks(user.username, token)
-    const newDecks: Deck[] = delta(mvDecks, dokDecks)
-    const importedDecks: Deck[] = await importDecks(token, newDecks, creds, dryRun)
-    return importedDecks
+    await request({
+      method: "POST",
+      url: `https://decksofkeyforge.com/api/decks/${deck.id}/import-and-add`,
+      headers: {authorization: token}
+    })
+    console.info(`Imported ${deck.name} into DoK`)
   } catch (err) {
-    console.error("Error syncing Decks Of Keyforge");
-    console.error(err.message);
-    return []
+    console.error(`Import failed for deck ${deck.name}`)
   }
 }
 
-export const sync = async (creds: any, mvDecks: Deck[], dryRun: boolean): Promise<Deck[]>  => {
-  const user: User = creds.dok
+export const addDecks = async (creds: User, token: string, decks: Deck[]) => {
+  if (decks.length === 0) console.info("No new decks to import.");
+  await Promise.all(decks.map(deck => addDeck(deck, token)))
 
-  try {
-    let token: string = await login(user.email, user.password)
-    return await diffAndUpload(user, token, mvDecks, creds, dryRun);
-  } catch (err) {
-    console.error("Error connecting to Decks Of Keyforge");
-    console.error(err.message);
-    return []
-  }
+  // TODO: The return array should only return decks that were successful
+  return decks
 };

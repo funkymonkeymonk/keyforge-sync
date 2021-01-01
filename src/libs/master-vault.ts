@@ -1,4 +1,4 @@
-import {Deck} from "./deck";
+import {Deck} from "../types";
 import * as request from "request-promise-native";
 
 interface mvDeckData {
@@ -11,7 +11,7 @@ class User {
   }
 }
 
-export const getMyDecks = (
+export const getDecks = (
   user: User,
   page: number = 1,
   prev: Deck[] = []
@@ -28,13 +28,13 @@ export const getMyDecks = (
     json: true
   })
     .then(res => {
-      const decks = prev.concat(
-        res.data.map((deck: mvDeckData) => new Deck(deck.name, deck.id))
+      const decks: Deck[] = prev.concat(
+        res.data.map((deck: mvDeckData) => {deck.name, deck.id})
       );
 
       // Return all results if complete
       if (decks.length >= res.count) return decks;
-      else return getMyDecks(user, page + 1, decks);
+      else return getDecks(user, page + 1, decks);
     })
     .catch(err => {
       console.error("Error connecting to Master Vault for user: " + user.name);
