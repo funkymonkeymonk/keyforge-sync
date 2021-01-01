@@ -1,4 +1,4 @@
-import {Deck} from "../types";
+import {Deck, PushoverCreds} from "../types";
 import * as request from "request-promise-native";
 
 export const delta = (source: Deck[], destination: Deck[]) => {
@@ -12,8 +12,8 @@ export const delta = (source: Deck[], destination: Deck[]) => {
 
 class Message {
   constructor(
-    public token: string,
-    public user: string,
+    public token: string | undefined,
+    public user: string | undefined,
     public title: string,
     public message: string,
     public url_title: string,
@@ -22,12 +22,16 @@ class Message {
   }
 }
 
-export const notify = async (creds: any, deck: Deck) => {
+export const notify = async (user: PushoverCreds, deck: Deck) => {
   console.info(`sending push for ${deck.name}`)
+  if ( user.apiKey === undefined || user.userKey === undefined) {
+    console.error('No pushover credentials supplied')
+    return
+  }
 
   const message = new Message(
-    creds.apiKey,
-    creds.userKey,
+    user.apiKey,
+    user.userKey,
     `Deck added`,
     `${deck.name} imported into Decks of Keyforge`,
     'View on Decks Of Keyforge',

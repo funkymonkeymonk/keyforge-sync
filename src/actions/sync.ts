@@ -1,14 +1,8 @@
-import {Deck} from "../types";
+import {Deck, Creds} from "../types";
 
 const MasterVault = require("../libs/master-vault");
 const Dok = require("../libs/dok");
 import {delta, notify} from "../libs/utils";
-
-interface Creds {
-  dok: { password: string; email: string; username: string };
-  mv: { name: string; id: string; token: string };
-  pushover: { apiKey: string; userKey: string }
-}
 
 export async function sync(creds: Creds, dryRun: boolean) {
   // create an interface for all storage locations
@@ -25,6 +19,6 @@ export async function sync(creds: Creds, dryRun: boolean) {
   const mvToDokDiff: Deck[] = delta(mvDecks, dokDecks)
   if (!dryRun) {
     const addedDecks: Deck[] = await Dok.addDecks(creds.dok, dokToken, mvToDokDiff)
-    await Promise.all(addedDecks.map(deck => notify(creds, deck)))
+    await Promise.all(addedDecks.map(deck => notify(creds.pushover, deck)))
   }
 }
