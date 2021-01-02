@@ -36,6 +36,8 @@
     "build": "tsc",
     "test": "jest --coverage",
     "__sam-deploy": "sam deploy",
-    "deploy": "npm run build && npm  run __sam-deploy"
+    "__sam-local": "sam local invoke",
+    "deploy": "npm run build && npm  run __sam-deploy",
+    "local-run": "npm run build && npm run __sam-local"
   }
 }
