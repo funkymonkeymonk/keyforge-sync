@@ -1,5 +1,7 @@
 import {Deck} from "../types";
 import * as request from "request-promise-native";
+import * as http_client from "../libs/http-client";
+import {HttpClient, HttpClientRequestParameters} from "../libs/http-client";
 
 interface dokDeckData {
   name: string;
@@ -12,18 +14,22 @@ interface User {
   username: string
 }
 
-export const login = (user: User) => {
-  return request({
-    method: "POST",
+interface LoginPayload {
+  email: string
+  password: string
+}
+
+export const login = (user: User, httpClient: HttpClient = http_client): Promise<any> => {
+  let params: HttpClientRequestParameters<LoginPayload> = {
     url: "https://decksofkeyforge.com/api/users/login",
-    body: {
+    requiresToken: false,
+    payload: {
       email: user.email,
       password: user.password
-    },
-    json: true,
-    resolveWithFullResponse: true
-  })
-    .then(res => res.headers.authorization);
+    }
+  };
+
+  return httpClient.post(params)
 };
 
 export const getDecks = (
