@@ -25,7 +25,6 @@ interface LoginPayload {
 export const login = async (user: User, httpClient: HttpClient = http_client): Promise<any> => {
   let params: HttpClientRequestParameters<LoginPayload> = {
     url: "https://decksofkeyforge.com/api/users/login",
-    requiresToken: false,
     payload: {
       email: user.email,
       password: user.password
@@ -43,7 +42,7 @@ export const getDecks = async (
   prev: Deck[] = []
 ): Promise<Deck[]> => {
   const username = user.username
-  let res: any = await request({
+  let params = {
     method: "POST",
     url: "https://decksofkeyforge.com/api/decks/filter",
     headers: {
@@ -57,7 +56,9 @@ export const getDecks = async (
       owner: username
     },
     json: true
-  })
+  };
+
+  let res: any = await request(params)
 
   // Return all results if complete
   if (res.decks.length === 0) return prev;

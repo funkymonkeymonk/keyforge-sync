@@ -2,8 +2,8 @@ import * as request from "request-promise-native";
 
 export interface HttpClientRequestParameters<T> {
   url: string
-  requiresToken: boolean
   payload?: T
+  headers?: any
 }
 
 //TODO: fix the any
@@ -13,14 +13,15 @@ export interface HttpClient {
   post<T>(parameters: HttpClientRequestParameters<T>): Promise<any>
 }
 
-const post = <T>(parameters: HttpClientRequestParameters<T>): Promise<any> =>
-  Promise.resolve(request({
+const post = <T>(params: HttpClientRequestParameters<T>): any =>
+  request({
     method: "POST",
-    url: parameters.url,
-    body: parameters.payload,
+    url: params.url,
+    body: params.payload,
     json: true,
-    resolveWithFullResponse: true
-  }))
+    resolveWithFullResponse: true,
+    headers: params.headers
+  })
 
 export {
   post
