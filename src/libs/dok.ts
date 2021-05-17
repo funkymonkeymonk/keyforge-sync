@@ -19,7 +19,10 @@ interface LoginPayload {
   password: string
 }
 
-export const login = (user: User, httpClient: HttpClient = http_client): Promise<any> => {
+// TODO: Lots of type fixes and cleanup on the requests, this is a pretty big bodge right now
+// TODO: Am I handling any error cases? I pretty much doubt it.
+
+export const login = async (user: User, httpClient: HttpClient = http_client): Promise<any> => {
   let params: HttpClientRequestParameters<LoginPayload> = {
     url: "https://decksofkeyforge.com/api/users/login",
     requiresToken: false,
@@ -29,17 +32,18 @@ export const login = (user: User, httpClient: HttpClient = http_client): Promise
     }
   };
 
-  return httpClient.post(params)
+  let res = await httpClient.post(params)
+  return res.headers.authorization
 };
 
-export const getDecks = (
+export const getDecks = async (
   user: User,
   token: string,
   page: number = 0,
   prev: Deck[] = []
 ): Promise<Deck[]> => {
   const username = user.username
-  return request({
+  let res: any = await request({
     method: "POST",
     url: "https://decksofkeyforge.com/api/decks/filter",
     headers: {
@@ -53,19 +57,19 @@ export const getDecks = (
       owner: username
     },
     json: true
-  }).then(res => {
-    // Return all results if complete
-    if (res.decks.length === 0) return prev;
+  })
 
-    const decks = prev.concat(
-      res.decks.map((deck: dokDeckData) => ({
-        name: deck.name,
-        id: deck.keyforgeId
-      }))
-    );
+  // Return all results if complete
+  if (res.decks.length === 0) return prev;
 
-    return getDecks(user, token, page + 1, decks);
-  });
+  const decks = prev.concat(
+    res.decks.map((deck: dokDeckData) => ({
+      name: deck.name,
+      id: deck.keyforgeId
+    }))
+  );
+
+  return getDecks(user, token, page + 1, decks);
 };
 
 async function addDeck(deck: Deck, token: string) {
